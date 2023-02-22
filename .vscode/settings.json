@@ -1,0 +1,21 @@
+{
+    "sqltools.connections": [
+        {
+            "mssqlOptions": {
+                "appName": "sandbox2",
+                "useUTC": true,
+                "encrypt": true,
+                "abortTransactionOnError": true
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 1433,
+            "driver": "MSSQL",
+            "name": "localsandbox",
+            "username": "sa",
+            "password": "1q2w3e4r",
+            "database": "testsandbox"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

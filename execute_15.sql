@@ -1,0 +1,10 @@
+SELECT
+	TO_CHAR(whimp.date_m, 'DD/MM/YYYY HH24:MI') DATETIME_METER,
+	TRIM(RTRIM((TO_CHAR(WHIMP.QTYVALUE, 'FM99999999990.999999999999999999999999999999')), '.')) QTYVALUE,
+	whimp.meterpointid METERPOINTID
+FROM
+	edmi.tblprofilewhimp whimp
+WHERE
+	whimp.meterpointid = :mtpid
+	AND whimp.date_m = TO_DATE(:START_DATE, 'YYYY-MM-DD HH24.MI')
+ORDER BY whimp.DATE_M
