@@ -56,17 +56,17 @@ cursor = conn.cursor()
 folder_name = querytime.strftime("%Y%m%d%H%M")
 
 #MSSQL connection
-# server = 'localhost' 
-# database = 'testsandbox' 
-# username = 'sa' 
-# password = '1q2w3e4r' 
-# port = '1433'
+server = 'localhost' 
+database = 'testsandbox' 
+username = 'sa' 
+password = '1q2w3e4r' 
+port = '1433'
 
-server = '172.16.62.31' 
-database = 'ERC_SANDBOX_2' 
-username = 'amruser' 
-password = 'tpaamruser3e4r!'
-port = '50609'
+# server = '172.16.62.31' 
+# database = 'ERC_SANDBOX_2' 
+# username = 'amruser' 
+# password = 'tpaamruser3e4r!'
+# port = '50609'
 
 cnxn_str = ("Driver={ODBC Driver 18 for SQL Server};"
             "Server="+ server +","+ port +";"
@@ -105,8 +105,8 @@ WHERE tb1.meter_point_id IS NOT NULL;'''
 
 # for i in cursor:
 #     print(i)
-
-df = pd.read_sql_query(sql1, mssql_engine)
+with mssql_engine.connect() as conn:
+    df = pd.read_sql_query(sql=text(sql1), con=mssql_engine)
 # medter_dict = df.to_dict()
 # print(medter_dict)
 print(df)
@@ -115,7 +115,7 @@ meterpointlist = df['meter_point_id'].values.tolist()
 print(meterpointlist)
 if not len(df.index) == 0:
     df.date_time.fillna(default_query_time.strftime("%Y-%m-%d %H:%M"))
-    df['date_time'] = default_query_time.strftime("%Y-%m-%d %H:%M")
+df['date_time'] = df['date_time'].dt.strftime("%Y-%m-%d %H:%M")
 date_end = df['date_time'].values.tolist()
 print(date_end)
 dictionary = dict(zip(meterpointlist,date_end))
