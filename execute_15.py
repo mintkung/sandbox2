@@ -55,73 +55,31 @@ conn = cx_Oracle.connect(
 cursor = conn.cursor()
 folder_name = querytime.strftime("%Y%m%d%H%M")
 
-# def executequery(meter, start_d):
-#     # if needed, place an 'r' before any parameter in order to address special characters such as '\'. For example, if your user name contains '\', you'll need to place 'r' before the user name: user=r'User Name'
-#     if not os.path.exists(folder_name):
-#         os.makedirs(folder_name)
-#         print("Creating folder",folder_name)
-#     else:
-#         print("Folder is existed, using that folder instead.")
-#     current_d = os.getcwd()
-#     csv_d = current_d+"\\"+folder_name+"\\"
-#     sql1 = """  SELECT
-#                             mp.meterpointid
-#                         FROM
-#                             edmi.tblmeterpoints mp
-#                         LEFT JOIN edmi.tbldevices dv ON
-#                             mp.deviceid = dv.deviceid
-#                         WHERE
-#                             mp.meterpointid = :mtpid"""
-#     #cursor = conn.cursor()
-#     cursor.execute(sql1, mtpid=meter)
-#     row = cursor.fetchone()
-#     if row == None:
-#         print(meter," is not found.")
-#         logging.info(meter," is not found.")
-#         return
-#     meterpointid = row[0]
-#     csv_name = "AMR_" + \
-#         querytime.strftime("%Y%m%d%H%M")+"_"+str(meterpointid)+".txt"
-#     print("meterpointid", str(meter), " is executed as ", csv_d+csv_name)
-#     logging.info("executed = " + str(meter))
-#     csv_file = open(csv_d+csv_name, "w", encoding="utf-8")
-#     writer = csv.writer(csv_file, delimiter=',',
-#                         lineterminator="\n", quoting=csv.QUOTE_NONE)
-#     # use triple quotes if you want to spread your query across multiple lines
-#     with open("execute_15.sql",encoding="utf-8") as sql_file:
-#         command = sql_file.read()
-#     cursor.execute(command, mtpid=meterpointid,
-#                     START_DATE=start_d)
-#     desc = cursor.description
-#     #writer.writerow(i[0] for i in desc)
-#     for row in cursor:
-#         writer.writerow(row)
-#     # while True:
-#         #row = cursor.fetchone()
-#         # if row is None:
-#         # break
-#         # print(row)
-#         # writer.writerow(row)
-#         # print (row[0], '-', row[1]) # this only shows the first two columns. To add an additional column you'll need to add , '-', row[2], etc.
-#         # print(row)
-#         # cursor.close()
-#         # conn.close()
-#     csv_file.close()
-#     print("done of ", meter)
-
 #MSSQL connection
-server = 'localhost' 
-database = 'testsandbox' 
-username = 'sa' 
-password = '1q2w3e4r' 
+# server = 'localhost' 
+# database = 'testsandbox' 
+# username = 'sa' 
+# password = '1q2w3e4r' 
+# port = '1433'
 
-cnxn = pyodbc.connect('DRIVER={SQL Server};'
-                        'SERVER='+server+';'
-                        'DATABASE='+database+';'
-                        # 'ENCRYPT=yes;'
-                        'UID='+username+';'
-                        'PWD='+ password+';'
-                        'Trusted_Connection=yes;')
+server = '172.16.62.31' 
+database = 'ERC_SANDBOX_2' 
+username = 'amruser' 
+password = 'tpaamruser3e4r!'
+port = '50609'
+
+cnxn_str = ("Driver={ODBC Driver 18 for SQL Server};"
+            "Server="+ server +","+ port +";"
+            "Database="+ database +";"
+            "UID="+ username +";"
+            "PWD="+ password +";"
+            "Encrypt=no;"
+            # "Trusted_Connection=yes;"
+            )
+
+print(cnxn_str)
+
+cnxn = pyodbc.connect(cnxn_str)
 cursor = cnxn.cursor()
 
 connection_url = URL.create(
@@ -129,7 +87,7 @@ connection_url = URL.create(
     username=username,
     password=password,
     host=server,
-    port=1433,
+    port=port,
     database=database,
     query={
         "driver": "ODBC Driver 18 for SQL Server",
@@ -140,8 +98,8 @@ connection_url = URL.create(
 mssql_engine = create_engine(connection_url)
 
 sql1 = '''
-SELECT tb1.*, tb2.date_time FROM [testsandbox].[dbo].[tb_pea_customer] tb1
-JOIN [testsandbox].[dbo].[tb_last_update] tb2 ON tb1.meter_point_id = tb2.meter_point_id
+SELECT tb1.*, tb2.date_time FROM [dbo].[tb_pea_customer] tb1
+LEFT JOIN [dbo].[tb_last_update] tb2 ON tb1.meter_point_id = tb2.meter_point_id
 WHERE tb1.meter_point_id IS NOT NULL;'''
 # cursor.execute(sql1) 
 
@@ -155,7 +113,9 @@ print(df)
 print(df.dtypes)
 meterpointlist = df['meter_point_id'].values.tolist()
 print(meterpointlist)
-df['date_time'] = df['date_time'].dt.strftime("%Y-%m-%d %H:%M")
+if not len(df.index) == 0:
+    df.date_time.fillna(default_query_time.strftime("%Y-%m-%d %H:%M"))
+    df['date_time'] = default_query_time.strftime("%Y-%m-%d %H:%M")
 date_end = df['date_time'].values.tolist()
 print(date_end)
 dictionary = dict(zip(meterpointlist,date_end))
@@ -543,7 +503,7 @@ def getandsave(meterpointlist_str, meter, date_end):
     # df_final.info()
     #INSERT DATA TO MSSQL
     sql_update = '''
-    MERGE [testsandbox].[dbo].[tb_last_update] as t
+    MERGE [dbo].[tb_last_update] as t
     USING (Values(?,?)) AS s(meter_point_id, date_time)
     ON t.meter_point_id = s.meter_point_id 
     WHEN MATCHED THEN UPDATE SET 
@@ -554,7 +514,7 @@ def getandsave(meterpointlist_str, meter, date_end):
             VALUES (s.meter_point_id, s.date_time);
     '''
     sql_insert = '''
-    INSERT INTO [testsandbox].[dbo].[tb_amr_energy] (meter_point_id, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    INSERT INTO [dbo].[tb_amr_energy] (meter_point_id, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     '''
     for index, row in df_final.iterrows():
         print("insert row ", index, "Values = ",row.meterpointid, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter)

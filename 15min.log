@@ -1,0 +1,134 @@
+18128 - INFO - 23-Feb-2023 15:01:59 - Start execute 15min query task on 2023-02-23 15:01:59
+18128 - INFO - 23-Feb-2023 15:01:59 - query time = 15:00
+13040 - INFO - 23-Feb-2023 15:20:04 - Start execute 15min query task on 2023-02-23 15:20:04
+13040 - INFO - 23-Feb-2023 15:20:04 - query time = 15:15
+41124 - INFO - 23-Feb-2023 15:20:20 - Start execute 15min query task on 2023-02-23 15:20:20
+41124 - INFO - 23-Feb-2023 15:20:20 - query time = 15:15
+43552 - INFO - 23-Feb-2023 15:44:32 - Start execute 15min query task on 2023-02-23 15:44:32
+43552 - INFO - 23-Feb-2023 15:44:32 - query time = 15:30
+16468 - INFO - 23-Feb-2023 16:02:10 - Start execute 15min query task on 2023-02-23 16:02:10
+16468 - INFO - 23-Feb-2023 16:02:10 - query time = 16:00
+40460 - INFO - 23-Feb-2023 16:09:20 - Start execute 15min query task on 2023-02-23 16:09:20
+40460 - INFO - 23-Feb-2023 16:09:20 - query time = 16:00
+40460 - INFO - 23-Feb-2023 16:09:20 - Latest update of meterpointid 199087 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:20 - Time using for query of meterpointid 199087 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:21 - Latest update of meterpointid 128854 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:21 - Time using for query of meterpointid 128854 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:21 - Latest update of meterpointid 84993 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:21 - Time using for query of meterpointid 84993 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:22 - Latest update of meterpointid 90919 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:22 - Time using for query of meterpointid 90919 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:22 - Latest update of meterpointid 38651 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:22 - Time using for query of meterpointid 38651 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:23 - Latest update of meterpointid 38652 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:23 - Time using for query of meterpointid 38652 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:23 - Latest update of meterpointid 29421 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:23 - Time using for query of meterpointid 29421 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:24 - Latest update of meterpointid 38659 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:24 - Time using for query of meterpointid 38659 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:24 - Latest update of meterpointid 30028 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:24 - Time using for query of meterpointid 30028 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:25 - Latest update of meterpointid 182567 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:25 - Time using for query of meterpointid 182567 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:25 - Latest update of meterpointid 9875 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:25 - Time using for query of meterpointid 9875 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:26 - Latest update of meterpointid 46504 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:26 - Time using for query of meterpointid 46504 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:26 - Latest update of meterpointid 46496 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:26 - Time using for query of meterpointid 46496 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:26 - Latest update of meterpointid 46516 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:26 - Time using for query of meterpointid 46516 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:27 - Latest update of meterpointid 176607 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:27 - Time using for query of meterpointid 176607 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:27 - Latest update of meterpointid 14772 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:27 - Time using for query of meterpointid 14772 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:28 - Latest update of meterpointid 192922 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:28 - Time using for query of meterpointid 192922 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:28 - Latest update of meterpointid 90933 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:28 - Time using for query of meterpointid 90933 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:29 - Latest update of meterpointid 7590 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:29 - Time using for query of meterpointid 7590 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:30 - Latest update of meterpointid 90930 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:30 - Time using for query of meterpointid 90930 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:30 - Latest update of meterpointid 90915 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:30 - Time using for query of meterpointid 90915 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:30 - Latest update of meterpointid 46480 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:30 - Time using for query of meterpointid 46480 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:31 - Latest update of meterpointid 31886 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:31 - Time using for query of meterpointid 31886 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:31 - Latest update of meterpointid 90920 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:31 - Time using for query of meterpointid 90920 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:32 - Latest update of meterpointid 73873 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:32 - Time using for query of meterpointid 73873 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:32 - Latest update of meterpointid 73973 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:32 - Time using for query of meterpointid 73973 is 2023-02-22 14:30 to 2023-02-23 15:45
+40460 - INFO - 23-Feb-2023 16:09:32 - Latest update of meterpointid 90954 = 2023-02-22 14:15
+40460 - INFO - 23-Feb-2023 16:09:32 - Time using for query of meterpointid 90954 is 2023-02-22 14:30 to 2023-02-23 15:45
+6872 - INFO - 24-Feb-2023 10:08:21 - Start execute 15min query task on 2023-02-24 10:08:21
+6872 - INFO - 24-Feb-2023 10:08:21 - query time = 10:00
+32160 - INFO - 24-Feb-2023 10:19:57 - Start execute 15min query task on 2023-02-24 10:19:57
+32160 - INFO - 24-Feb-2023 10:19:57 - query time = 10:15
+36296 - INFO - 24-Feb-2023 10:26:59 - Start execute 15min query task on 2023-02-24 10:26:59
+36296 - INFO - 24-Feb-2023 10:26:59 - query time = 10:15
+38296 - INFO - 24-Feb-2023 10:34:17 - Start execute 15min query task on 2023-02-24 10:34:17
+38296 - INFO - 24-Feb-2023 10:34:17 - query time = 10:30
+34364 - INFO - 24-Feb-2023 10:42:26 - Start execute 15min query task on 2023-02-24 10:42:26
+34364 - INFO - 24-Feb-2023 10:42:26 - query time = 10:30
+42084 - INFO - 24-Feb-2023 10:42:41 - Start execute 15min query task on 2023-02-24 10:42:41
+42084 - INFO - 24-Feb-2023 10:42:41 - query time = 10:30
+41816 - INFO - 24-Feb-2023 10:44:28 - Start execute 15min query task on 2023-02-24 10:44:28
+41816 - INFO - 24-Feb-2023 10:44:28 - query time = 10:30
+21604 - INFO - 24-Feb-2023 10:50:27 - Start execute 15min query task on 2023-02-24 10:50:27
+21604 - INFO - 24-Feb-2023 10:50:27 - query time = 10:45
+45748 - INFO - 24-Feb-2023 10:51:17 - Start execute 15min query task on 2023-02-24 10:51:17
+45748 - INFO - 24-Feb-2023 10:51:17 - query time = 10:45
+22276 - INFO - 24-Feb-2023 11:13:29 - Start execute 15min query task on 2023-02-24 11:13:29
+22276 - INFO - 24-Feb-2023 11:13:29 - query time = 11:00
+44980 - INFO - 24-Feb-2023 11:13:46 - Start execute 15min query task on 2023-02-24 11:13:46
+44980 - INFO - 24-Feb-2023 11:13:46 - query time = 11:00
+12056 - INFO - 24-Feb-2023 11:16:48 - Start execute 15min query task on 2023-02-24 11:16:48
+12056 - INFO - 24-Feb-2023 11:16:48 - query time = 11:15
+25604 - INFO - 24-Feb-2023 11:19:52 - Start execute 15min query task on 2023-02-24 11:19:52
+25604 - INFO - 24-Feb-2023 11:19:52 - query time = 11:15
+45520 - INFO - 24-Feb-2023 11:27:19 - Start execute 15min query task on 2023-02-24 11:27:19
+45520 - INFO - 24-Feb-2023 11:27:19 - query time = 11:15
+39500 - INFO - 24-Feb-2023 11:35:04 - Start execute 15min query task on 2023-02-24 11:35:04
+39500 - INFO - 24-Feb-2023 11:35:04 - query time = 11:30
+44424 - INFO - 24-Feb-2023 14:07:54 - Start execute 15min query task on 2023-02-24 14:07:54
+44424 - INFO - 24-Feb-2023 14:07:54 - query time = 14:00
+44424 - INFO - 24-Feb-2023 14:07:55 - Latest update of meterpointid 199087 = 2023-02-01 00:15
+44424 - INFO - 24-Feb-2023 14:07:55 - Time using for query of meterpointid 199087 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:10:21 - Start execute 15min query task on 2023-02-24 14:10:21
+440 - INFO - 24-Feb-2023 14:10:21 - query time = 14:00
+440 - INFO - 24-Feb-2023 14:10:21 - Latest update of meterpointid 199087 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:10:21 - Time using for query of meterpointid 199087 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:10:33 - Latest update of meterpointid 128854 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:10:33 - Time using for query of meterpointid 128854 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:11:36 - Latest update of meterpointid 84993 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:11:36 - Time using for query of meterpointid 84993 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:12:26 - Latest update of meterpointid 90919 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:12:26 - Time using for query of meterpointid 90919 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:13:33 - Latest update of meterpointid 38651 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:13:33 - Time using for query of meterpointid 38651 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:14:34 - Latest update of meterpointid 38652 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:14:34 - Time using for query of meterpointid 38652 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:15:13 - Latest update of meterpointid 29421 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:15:13 - Time using for query of meterpointid 29421 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:15:59 - Latest update of meterpointid 38659 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:15:59 - Time using for query of meterpointid 38659 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:16:39 - Latest update of meterpointid 30028 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:16:39 - Time using for query of meterpointid 30028 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:17:22 - Latest update of meterpointid 182567 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:17:22 - Time using for query of meterpointid 182567 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:18:03 - Latest update of meterpointid 9875 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:18:03 - Time using for query of meterpointid 9875 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:18:49 - Latest update of meterpointid 46504 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:18:49 - Time using for query of meterpointid 46504 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:19:28 - Latest update of meterpointid 46496 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:19:28 - Time using for query of meterpointid 46496 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:19:52 - Latest update of meterpointid 46516 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:19:52 - Time using for query of meterpointid 46516 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:20:26 - Latest update of meterpointid 176607 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:20:26 - Time using for query of meterpointid 176607 is 2023-02-01 00:30 to 2023-02-24 13:45
+440 - INFO - 24-Feb-2023 14:21:18 - Latest update of meterpointid 14772 = 2023-02-01 00:15
+440 - INFO - 24-Feb-2023 14:21:18 - Time using for query of meterpointid 14772 is 2023-02-01 00:30 to 2023-02-24 13:45
