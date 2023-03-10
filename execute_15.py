@@ -161,6 +161,10 @@ except exc.SQLAlchemyError as e:
     error = str(e)
     print(error)
 
+def end_of_month(dt):
+    todays_month = dt.month
+    tomorrows_month = (dt + timedelta(days=1)).month
+    return tomorrows_month != todays_month
 
 def getandsave(meter, date_end):
     sql_cus = '''
@@ -520,12 +524,47 @@ def getandsave(meter, date_end):
         THEN INSERT (meter_point_id, date_time)
             VALUES (s.meter_point_id, s.date_time);
     '''
-    sql_insert = '''
-    INSERT INTO [dbo].[tb_amr_energy] (meter_point_id, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-    '''
+    # format date
+    format = '%Y-%m-%d %H:%M'
+    table = ""
     for index, row in df_final.iterrows():
         print("insert row ", index, "Values = ",row.meterpointid, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter)
-        
+        #select table base on month
+        input = row.datetime_meter
+        checkdate = datetime.strptime(input, format)
+        # print("Hour is " + str(checkdate.hour) + "mininute is " + str(checkdate.minute))
+        #if today is last day of month and is midnight then minus day 1
+        if checkdate.day == 1 and checkdate.hour == 0 and checkdate.minute == 0:
+            log_msg = "This is last row data of the day at midnight!!"
+            print(log_msg)
+            checkdate = checkdate - timedelta(days=1)
+        if checkdate.month == 1:
+            table = "tb_amr_energy_1"
+        elif checkdate.month == 2:
+            table = "tb_amr_energy_2"
+        elif checkdate.month == 3:
+            table = "tb_amr_energy_3"
+        elif checkdate.month == 4:
+            table = "tb_amr_energy_4"
+        elif checkdate.month == 5:
+            table = "tb_amr_energy_5"
+        elif checkdate.month == 6:
+            table = "tb_amr_energy_6"
+        elif checkdate.month == 7:
+            table = "tb_amr_energy_7"
+        elif checkdate.month == 8:
+            table = "tb_amr_energy_8"
+        elif checkdate.month == 9:
+            table = "tb_amr_energy_9"
+        elif checkdate.month == 10:
+            table = "tb_amr_energy_10"
+        elif checkdate.month == 11:
+            table = "tb_amr_energy_11"
+        elif checkdate.month == 12:
+            table = "tb_amr_energy_12"
+        sql_insert = '''
+        INSERT INTO [dbo].[{insert_table}] (meter_point_id, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        '''.format(insert_table=table)
         cursor.execute(sql_insert, row.meterpointid, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter, row.customercode)
         cursor.execute(sql_update, row.meterpointid, row.datetime_meter)
     cnxn.commit()
