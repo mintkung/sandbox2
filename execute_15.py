@@ -174,6 +174,13 @@ def getandsave(meter, date_end):
     WHERE mp.meterpointid = :mtpid
     '''
 
+    sql_dev = '''
+    SELECT mp.meterpointid, dv.plantnumber
+    FROM edmi.tblmeterpoints mp
+    LEFT JOIN edmi.tbldevices dv ON mp.customerid = dv.deviceid
+    WHERE mp.meterpointid = :mtpid
+    '''
+
     sql_whimp = '''
     SELECT
         TO_CHAR(whimp.date_m, 'YYYY-MM-DD HH24:MI') DATETIME_METER,
@@ -477,6 +484,8 @@ def getandsave(meter, date_end):
     with engine.connect() as orac_conn:
         df_cus = pd.read_sql_query(sql=text(sql_cus), con=orac_conn, params={"mtpid":meter})
         print(df_cus)
+        df_dev = pd.read_sql_query(sql=text(sql_dev), con=orac_conn, params={"mtpid":meter})
+        print(df_dev)
         df_whimp = pd.read_sql_query(sql=text(sql_whimp), con=orac_conn, params={"mtpid":meter})
         print(df_whimp)
         df_varhimp = pd.read_sql_query(sql=text(sql_varimp), con=orac_conn, params={"mtpid":meter})
@@ -507,7 +516,8 @@ def getandsave(meter, date_end):
         df_3 = pd.merge(df_1,df_2,how="left", on=["meterpointid", "datetime_meter"])
         df_4 = pd.merge(df_3,df_pf,how="left", on=["meterpointid", "datetime_meter"])
         df_5 = pd.merge(df_4, df_cus, how="left", on=["meterpointid"])
-        df_all = pd.merge(df_5,df_wh,how="left", on=["meterpointid", "datetime_meter"])
+        df_6 = pd.merge(df_5, df_dev, how="left", on=["meterpointid"])
+        df_all = pd.merge(df_6,df_wh,how="left", on=["meterpointid", "datetime_meter"])
         # df_all.to_csv("test.csv",index=False)
         df_final = df_all.replace(({np.NaN:None}))
         print(df_final)
@@ -528,7 +538,7 @@ def getandsave(meter, date_end):
     format = '%Y-%m-%d %H:%M'
     table = ""
     for index, row in df_final.iterrows():
-        print("insert row ", index, "Values = ",row.meterpointid, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter)
+        print("insert row ", index, "Values = ",row.meterpointid, row.plantnumber, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter)
         #select table base on month
         input = row.datetime_meter
         checkdate = datetime.strptime(input, format)
@@ -563,9 +573,9 @@ def getandsave(meter, date_end):
         elif checkdate.month == 12:
             table = "tb_amr_energy_12"
         sql_insert = '''
-        INSERT INTO [dbo].[{insert_table}] (meter_point_id, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO [dbo].[{insert_table}] (meter_point_id, pea_no, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         '''.format(insert_table=table)
-        cursor.execute(sql_insert, row.meterpointid, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter, row.customercode)
+        cursor.execute(sql_insert, row.meterpointid, row.plantnumber, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter, row.customercode)
         cursor.execute(sql_update, row.meterpointid, row.datetime_meter)
     cnxn.commit()
     # cursor.close()
