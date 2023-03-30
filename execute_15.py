@@ -177,7 +177,7 @@ def getandsave(meter, date_end):
     sql_dev = '''
     SELECT mp.meterpointid, dv.plantnumber
     FROM edmi.tblmeterpoints mp
-    LEFT JOIN edmi.tbldevices dv ON mp.customerid = dv.deviceid
+    LEFT JOIN edmi.tbldevices dv ON mp.deviceid = dv.deviceid
     WHERE mp.meterpointid = :mtpid
     '''
 
