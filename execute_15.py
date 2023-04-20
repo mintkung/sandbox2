@@ -43,7 +43,7 @@ logging.info(log_msg)
 querytime = datetime(int(now.strftime("%Y")), int(now.strftime("%m")), int(now.strftime("%d")), int(now.strftime("%H")), querymin)
 #for testing
 querytime = querytime - timedelta(minutes=15) #delay total 30 mins
-default_query_time = datetime(2023,2,1,0,15)
+default_query_time = datetime(2023,4,1,0,15)
 min_sub = 15
 dt_start = querytime.strftime("%Y-%m-%d %H:%M")
 # print("query start = " + dt_start)
@@ -585,7 +585,8 @@ for device in meterpointlist:
     # device = [device]
     # in_vars = ','.join(':%d' % i for i in range(len(device)))
     # print(in_vars) 
-    if dictionary[device]:
+    if dictionary[device] and not pd.isnull(dictionary[device]):
+        print("IS it null ", pd.isnull(dictionary[device]))
         print("Value from list is " + str(device))
         print("Value from dictionary is " + str(dictionary[device]))
         #Get last update + 15 min to check if it equal to current query time
