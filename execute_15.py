@@ -11,6 +11,7 @@ import logging
 import pyodbc
 import pandas as pd
 import numpy as np
+import concurrent.futures
 import oracledb
 oracledb.version = "8.3.0"
 sys.modules["cx_Oracle"] = oracledb
@@ -43,7 +44,7 @@ logging.info(log_msg)
 querytime = datetime(int(now.strftime("%Y")), int(now.strftime("%m")), int(now.strftime("%d")), int(now.strftime("%H")), querymin)
 #for testing
 querytime = querytime - timedelta(minutes=15) #delay total 30 mins
-default_query_time = datetime(2023,4,1,0,15)
+default_query_time = datetime(2023,5,18,0,0)
 min_sub = 15
 dt_start = querytime.strftime("%Y-%m-%d %H:%M")
 # print("query start = " + dt_start)
@@ -68,19 +69,50 @@ port = '1433'
 # password = 'tpaamruser3e4r!'
 # port = '50609'
 
-cnxn_str = ("Driver={ODBC Driver 18 for SQL Server};"
-            "Server="+ server +","+ port +";"
-            "Database="+ database +";"
-            "UID="+ username +";"
-            "PWD="+ password +";"
-            "Encrypt=no;"
-            # "Trusted_Connection=yes;"
-            )
+# cnxn_str = ("Driver={ODBC Driver 18 for SQL Server};"
+#             "Server="+ server +","+ port +";"
+#             "Database="+ database +";"
+#             "UID="+ username +";"
+#             "PWD="+ password +";"
+#             "Encrypt=no;"
+#             # "Trusted_Connection=yes;"
+#             )
 
-print(cnxn_str)
+# print(cnxn_str)
 
-cnxn = pyodbc.connect(cnxn_str)
-cursor = cnxn.cursor()
+# cnxn = pyodbc.connect(cnxn_str)
+# cursor = cnxn.cursor()
+
+def sandbox_connection():
+    #MSSQL connection
+    server = 'localhost' 
+    database = 'testsandbox' 
+    username = 'sa' 
+    password = '1q2w3e4r' 
+    port = '1433'
+
+    # server = '172.16.62.31' 
+    # database = 'ERC_SANDBOX_2' 
+    # username = 'amruser' 
+    # password = 'tpaamruser3e4r!'
+    # port = '50609'
+
+    cnxn_str = ("Driver={ODBC Driver 18 for SQL Server};"
+                "Server="+ server +","+ port +";"
+                "Database="+ database +";"
+                "UID="+ username +";"
+                "PWD="+ password +";"
+                "Encrypt=no;"
+                # "Trusted_Connection=yes;"
+                )
+
+    # print(cnxn_str)
+
+    cnxn = pyodbc.connect(cnxn_str)
+    cnxn.autocommit = True
+
+    # cursor = cnxn.cursor()
+    return cnxn
 
 connection_url = URL.create(
     "mssql+pyodbc",
@@ -104,7 +136,7 @@ except exc.SQLAlchemyError as e:
 # mssql_engine = create_engine(connection_url)
 
 sql1 = '''
-SELECT tb1.*, tb2.date_time FROM [dbo].[tb_pea_customer] tb1
+SELECT tb1.*, tb2.date_time FROM [dbo].[tb_pea_customer2] tb1
 LEFT JOIN [dbo].[tb_last_update] tb2 ON tb1.meter_point_id = tb2.meter_point_id
 WHERE tb1.meter_point_id IS NOT NULL;'''
 # cursor.execute(sql1) 
@@ -115,15 +147,15 @@ with mssql_engine.connect() as conn:
     df = pd.read_sql_query(sql=text(sql1), con=conn)
 # medter_dict = df.to_dict()
 # print(medter_dict)
-print(df)
-print(df.dtypes)
+# print(df)
+# print(df.dtypes)
 meterpointlist = df['meter_point_id'].values.tolist()
-print(meterpointlist)
+# print(meterpointlist)
 if not len(df.index) == 0:
-    df.date_time.fillna(default_query_time.strftime("%Y-%m-%d %H:%M"))
+    df.date_time.fillna(default_query_time.strftime("%Y-%m-%d %H:%M"), inplace=True)
 df['date_time'] = df['date_time'].dt.strftime("%Y-%m-%d %H:%M")
 date_end = df['date_time'].values.tolist()
-print(date_end)
+# print(date_end)
 dictionary = dict(zip(meterpointlist,date_end))
 # print(dictionary)
 # print(meterpointlist)
@@ -166,7 +198,111 @@ def end_of_month(dt):
     tomorrows_month = (dt + timedelta(days=1)).month
     return tomorrows_month != todays_month
 
-def getandsave(meter, date_end):
+def get_date(meter):
+    device = meter
+    if dictionary[device] and not pd.isnull(dictionary[device]):
+        # print("IS it null ", pd.isnull(dictionary[device]))
+        # print("Value from list is " + str(device))
+        # print("Value from dictionary is " + str(dictionary[device]))
+        #Get last update + 15 min to check if it equal to current query time
+        lastest_ = datetime.strptime(dictionary[device],'%Y-%m-%d %H:%M')
+        log_msg = "Latest update of meterpointid "+ str(device) + " = " + lastest_.strftime('%Y-%m-%d %H:%M')
+        # print(log_msg)
+        # logging.info(log_msg)
+        lastest = lastest_ + timedelta(minutes=15)
+        # print("Time for checking is " + lastest.strftime('%Y-%m-%d %H:%M'))
+        if querytime == lastest:
+            log_msg = "Time using for query of meterpointid " + str(device) + " is " + querytime.strftime('%Y-%m-%d %H:%M')
+            logging.info(log_msg)
+            # print(log_msg)
+            dt_end = dt_start = querytime.strftime('%Y-%m-%d %H:%M')
+        else:
+
+            log_msg = "Time using for query of meterpointid " + str(device) + " is " + lastest.strftime('%Y-%m-%d %H:%M') + " to " + querytime.strftime('%Y-%m-%d %H:%M')
+            logging.info(log_msg)
+            # print(log_msg)
+            dt_start = lastest.strftime('%Y-%m-%d %H:%M')
+            dt_end = querytime.strftime("%Y-%m-%d %H:%M")
+    else:
+        # print("No latest time is found, maybe a new meter?")
+        log_msg = "Using default start time for query of new meterpointid " + str(device) + " = as " + default_query_time.strftime("%Y-%m-%d %H:%M")
+        logging.info(log_msg)
+        # print(log_msg)
+        dt_start = default_query_time.strftime("%Y-%m-%d %H:%M")
+        dt_end = querytime.strftime("%Y-%m-%d %H:%M")
+    date_end = dt_end
+    return dt_start, date_end
+
+def get_sb_table_to_insert(checkdate):
+    #if today is last day of month and is midnight then minus day 1
+    if checkdate.day == 1 and checkdate.hour == 0 and checkdate.minute == 0:
+        log_msg = "This is last row data of the day at midnight!!"
+        # print(log_msg)
+        checkdate = checkdate - timedelta(days=1)
+    if checkdate.month == 1:
+        table = "tb_amr_energy_1"
+    elif checkdate.month == 2:
+        table = "tb_amr_energy_2"
+    elif checkdate.month == 3:
+        table = "tb_amr_energy_3"
+    elif checkdate.month == 4:
+        table = "tb_amr_energy_4"
+    elif checkdate.month == 5:
+        table = "tb_amr_energy_5"
+    elif checkdate.month == 6:
+        table = "tb_amr_energy_6"
+    elif checkdate.month == 7:
+        table = "tb_amr_energy_7"
+    elif checkdate.month == 8:
+        table = "tb_amr_energy_8"
+    elif checkdate.month == 9:
+        table = "tb_amr_energy_9"
+    elif checkdate.month == 10:
+        table = "tb_amr_energy_10"
+    elif checkdate.month == 11:
+        table = "tb_amr_energy_11"
+    elif checkdate.month == 12:
+        table = "tb_amr_energy_12"
+    return table
+
+def getandsave(meter):
+    # setting date
+    print("Start query : " + str(meter))
+    # device = meter
+    # if dictionary[device] and not pd.isnull(dictionary[device]):
+    #     # print("IS it null ", pd.isnull(dictionary[device]))
+    #     # print("Value from list is " + str(device))
+    #     # print("Value from dictionary is " + str(dictionary[device]))
+    #     #Get last update + 15 min to check if it equal to current query time
+    #     lastest_ = datetime.strptime(dictionary[device],'%Y-%m-%d %H:%M')
+    #     log_msg = "Latest update of meterpointid "+ str(device) + " = " + lastest_.strftime('%Y-%m-%d %H:%M')
+    #     # print(log_msg)
+    #     logging.info(log_msg)
+    #     lastest = lastest_ + timedelta(minutes=15)
+    #     # print("Time for checking is " + lastest.strftime('%Y-%m-%d %H:%M'))
+    #     if querytime == lastest:
+    #         log_msg = "Time using for query of meterpointid " + str(device) + " is " + querytime.strftime('%Y-%m-%d %H:%M')
+    #         logging.info(log_msg)
+    #         # print(log_msg)
+    #         dt_end = dt_start = querytime.strftime('%Y-%m-%d %H:%M')
+    #     else:
+
+    #         log_msg = "Time using for query of meterpointid " + str(device) + " is " + lastest.strftime('%Y-%m-%d %H:%M') + " to " + querytime.strftime('%Y-%m-%d %H:%M')
+    #         logging.info(log_msg)
+    #         # print(log_msg)
+    #         dt_start = lastest.strftime('%Y-%m-%d %H:%M')
+    #         dt_end = querytime.strftime("%Y-%m-%d %H:%M")
+    # else:
+    #     # print("No latest time is found, maybe a new meter?")
+    #     log_msg = "Using default start time for query of new meterpointid " + str(device) + " = as " + default_query_time.strftime("%Y-%m-%d %H:%M")
+    #     logging.info(log_msg)
+    #     # print(log_msg)
+    #     dt_start = default_query_time.strftime("%Y-%m-%d %H:%M")
+    #     dt_end = querytime.strftime("%Y-%m-%d %H:%M")
+    # date_end = dt_end
+
+    dt_start, date_end = get_date(meter)
+
     sql_cus = '''
     SELECT mp.meterpointid, cus.customercode
     FROM edmi.tblmeterpoints mp
@@ -481,46 +617,49 @@ def getandsave(meter, date_end):
         thdva.meterpointid = thdvc.meterpointid
         AND thdva.date_m = thdvc.date_m
         '''.format(datetime_start=dt_start, datetime_end=date_end)
-    with engine.connect() as orac_conn:
-        df_cus = pd.read_sql_query(sql=text(sql_cus), con=orac_conn, params={"mtpid":meter})
-        print(df_cus)
-        df_dev = pd.read_sql_query(sql=text(sql_dev), con=orac_conn, params={"mtpid":meter})
-        print(df_dev)
-        df_whimp = pd.read_sql_query(sql=text(sql_whimp), con=orac_conn, params={"mtpid":meter})
-        print(df_whimp)
-        df_varhimp = pd.read_sql_query(sql=text(sql_varimp), con=orac_conn, params={"mtpid":meter})
-        print(df_varhimp)
-        df_whexp = pd.read_sql_query(sql=text(sql_whexp), con=orac_conn, params={"mtpid":meter})
-        print(df_whexp)
-        df_varhexp = pd.read_sql_query(sql=text(sql_varexp), con=orac_conn, params={"mtpid":meter})
-        print(df_varhexp)
-        df_pf = pd.read_sql_query(sql=text(sql_pf), con=orac_conn, params={"mtpid":meter})
-        print(df_pf)
-        df_instv = pd.read_sql_query(sql=text(sql_instv), con=orac_conn, params={"mtpid":meter})
-        print(df_instv)
-        df_insti = pd.read_sql_query(sql=text(sql_insti), con=orac_conn, params={"mtpid":meter})
-        print(df_insti)
-        df_ang = pd.read_sql_query(sql=text(sql_instang), con=orac_conn, params={"mtpid":meter})
-        print(df_ang)
-        df_thdi = pd.read_sql_query(sql=text(sql_thdi), con=orac_conn, params={"mtpid":meter})
-        # print(df_thdi)
-        # df_thdv = pd.read_sql_query(sql=text(sql_thdv), con=orac_conn, params={"mtpid":meter}pointlist)
-        # print(df_thdv)
-        df_wh = pd.merge(df_whimp, df_whexp, how="left", on=["meterpointid", "datetime_meter"],suffixes=["_whimp","_whexp"])
-        print(df_wh)
-        df_varh = pd.merge(df_varhimp, df_varhexp, how="left", on=["meterpointid", "datetime_meter"])
-        print(df_varh)
-        df_all = pd.merge(df_wh, df_instv, how="left", on=["meterpointid", "datetime_meter"])
-        df_1 = pd.merge(df_insti, df_instv, how="left", on=["meterpointid", "datetime_meter"])
-        df_2 = pd.merge(df_ang,df_varh,how="left", on=["meterpointid", "datetime_meter"])
-        df_3 = pd.merge(df_1,df_2,how="left", on=["meterpointid", "datetime_meter"])
-        df_4 = pd.merge(df_3,df_pf,how="left", on=["meterpointid", "datetime_meter"])
-        df_5 = pd.merge(df_4, df_cus, how="left", on=["meterpointid"])
-        df_6 = pd.merge(df_5, df_dev, how="left", on=["meterpointid"])
-        df_all = pd.merge(df_6,df_wh,how="left", on=["meterpointid", "datetime_meter"])
-        # df_all.to_csv("test.csv",index=False)
-        df_final = df_all.replace(({np.NaN:None}))
-        print(df_final)
+    try:
+        with engine.connect() as orac_conn:
+            df_cus = pd.read_sql_query(sql=text(sql_cus), con=orac_conn, params={"mtpid":meter})
+            # print(df_cus)
+            df_dev = pd.read_sql_query(sql=text(sql_dev), con=orac_conn, params={"mtpid":meter})
+            # print(df_dev)
+            df_whimp = pd.read_sql_query(sql=text(sql_whimp), con=orac_conn, params={"mtpid":meter})
+            # print(df_whimp)
+            df_varhimp = pd.read_sql_query(sql=text(sql_varimp), con=orac_conn, params={"mtpid":meter})
+            # print(df_varhimp)
+            df_whexp = pd.read_sql_query(sql=text(sql_whexp), con=orac_conn, params={"mtpid":meter})
+            # print(df_whexp)
+            df_varhexp = pd.read_sql_query(sql=text(sql_varexp), con=orac_conn, params={"mtpid":meter})
+            # print(df_varhexp)
+            df_pf = pd.read_sql_query(sql=text(sql_pf), con=orac_conn, params={"mtpid":meter})
+            # print(df_pf)
+            df_instv = pd.read_sql_query(sql=text(sql_instv), con=orac_conn, params={"mtpid":meter})
+            # print(df_instv)
+            df_insti = pd.read_sql_query(sql=text(sql_insti), con=orac_conn, params={"mtpid":meter})
+            # print(df_insti)
+            df_ang = pd.read_sql_query(sql=text(sql_instang), con=orac_conn, params={"mtpid":meter})
+            # print(df_ang)
+            df_thdi = pd.read_sql_query(sql=text(sql_thdi), con=orac_conn, params={"mtpid":meter})
+            # print(df_thdi)
+            # df_thdv = pd.read_sql_query(sql=text(sql_thdv), con=orac_conn, params={"mtpid":meter}pointlist)
+            # print(df_thdv)
+            df_wh = pd.merge(df_whimp, df_whexp, how="left", on=["meterpointid", "datetime_meter"],suffixes=["_whimp","_whexp"])
+            # print(df_wh)
+            df_varh = pd.merge(df_varhimp, df_varhexp, how="left", on=["meterpointid", "datetime_meter"])
+            # print(df_varh)
+            df_all = pd.merge(df_wh, df_instv, how="left", on=["meterpointid", "datetime_meter"])
+            df_1 = pd.merge(df_insti, df_instv, how="left", on=["meterpointid", "datetime_meter"])
+            df_2 = pd.merge(df_ang,df_varh,how="left", on=["meterpointid", "datetime_meter"])
+            df_3 = pd.merge(df_1,df_2,how="left", on=["meterpointid", "datetime_meter"])
+            df_4 = pd.merge(df_3,df_pf,how="left", on=["meterpointid", "datetime_meter"])
+            df_5 = pd.merge(df_4, df_cus, how="left", on=["meterpointid"])
+            df_6 = pd.merge(df_5, df_dev, how="left", on=["meterpointid"])
+            df_all = pd.merge(df_6,df_wh,how="left", on=["meterpointid", "datetime_meter"])
+            # df_all.to_csv("test.csv",index=False)
+            df_final = df_all.replace(({np.NaN:None}))
+    except Exception as e:
+        logging.critical(f"Error Oracle : {e}")
+        # print(df_final)
         # df_final.info()
     #INSERT DATA TO MSSQL
     sql_update = '''
@@ -537,83 +676,132 @@ def getandsave(meter, date_end):
     # format date
     format = '%Y-%m-%d %H:%M'
     table = ""
-    for index, row in df_final.iterrows():
-        print("insert row ", index, "Values = ",row.meterpointid, row.plantnumber, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter)
+    try:
+        for index, row in df_final.iterrows():
+        # print("insert row ", index, "Values = ",row.meterpointid, row.plantnumber, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter)
         #select table base on month
-        input = row.datetime_meter
-        checkdate = datetime.strptime(input, format)
-        # print("Hour is " + str(checkdate.hour) + "mininute is " + str(checkdate.minute))
-        #if today is last day of month and is midnight then minus day 1
-        if checkdate.day == 1 and checkdate.hour == 0 and checkdate.minute == 0:
-            log_msg = "This is last row data of the day at midnight!!"
-            print(log_msg)
-            checkdate = checkdate - timedelta(days=1)
-        if checkdate.month == 1:
-            table = "tb_amr_energy_1"
-        elif checkdate.month == 2:
-            table = "tb_amr_energy_2"
-        elif checkdate.month == 3:
-            table = "tb_amr_energy_3"
-        elif checkdate.month == 4:
-            table = "tb_amr_energy_4"
-        elif checkdate.month == 5:
-            table = "tb_amr_energy_5"
-        elif checkdate.month == 6:
-            table = "tb_amr_energy_6"
-        elif checkdate.month == 7:
-            table = "tb_amr_energy_7"
-        elif checkdate.month == 8:
-            table = "tb_amr_energy_8"
-        elif checkdate.month == 9:
-            table = "tb_amr_energy_9"
-        elif checkdate.month == 10:
-            table = "tb_amr_energy_10"
-        elif checkdate.month == 11:
-            table = "tb_amr_energy_11"
-        elif checkdate.month == 12:
-            table = "tb_amr_energy_12"
-        sql_insert = '''
-        INSERT INTO [dbo].[{insert_table}] (meter_point_id, pea_no, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        '''.format(insert_table=table)
-        cursor.execute(sql_insert, row.meterpointid, row.plantnumber, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter, row.customercode)
-        cursor.execute(sql_update, row.meterpointid, row.datetime_meter)
-    cnxn.commit()
+            input = row.datetime_meter
+            checkdate = datetime.strptime(input, format)
+            # print("Hour is " + str(checkdate.hour) + "mininute is " + str(checkdate.minute))
+            #if today is last day of month and is midnight then minus day 1
+            # if checkdate.day == 1 and checkdate.hour == 0 and checkdate.minute == 0:
+            #     log_msg = "This is last row data of the day at midnight!!"
+            #     # print(log_msg)
+            #     checkdate = checkdate - timedelta(days=1)
+            # if checkdate.month == 1:
+            #     table = "tb_amr_energy_1"
+            # elif checkdate.month == 2:
+            #     table = "tb_amr_energy_2"
+            # elif checkdate.month == 3:
+            #     table = "tb_amr_energy_3"
+            # elif checkdate.month == 4:
+            #     table = "tb_amr_energy_4"
+            # elif checkdate.month == 5:
+            #     table = "tb_amr_energy_5"
+            # elif checkdate.month == 6:
+            #     table = "tb_amr_energy_6"
+            # elif checkdate.month == 7:
+            #     table = "tb_amr_energy_7"
+            # elif checkdate.month == 8:
+            #     table = "tb_amr_energy_8"
+            # elif checkdate.month == 9:
+            #     table = "tb_amr_energy_9"
+            # elif checkdate.month == 10:
+            #     table = "tb_amr_energy_10"
+            # elif checkdate.month == 11:
+            #     table = "tb_amr_energy_11"
+            # elif checkdate.month == 12:
+            #     table = "tb_amr_energy_12"
+            table = get_sb_table_to_insert(checkdate)
+            sql_insert = '''
+            INSERT INTO [dbo].[{insert_table}] (meter_point_id, pea_no, tae_i_a, tae_i_b, tae_i_c, tae_v_a, tae_v_b, tae_v_c, tae_pf, tae_ang_a, tae_ang_b, tae_ang_c, tae_kvarh_imp, tae_kvarh_exp, tae_kwh_imp, tae_kwh_exp, tae_date, contract_account) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            '''.format(insert_table=table)
+            with sandbox_connection() as sb_con:
+                cursor = sb_con.cursor()
+                cursor.execute(sql_insert, row.meterpointid, row.plantnumber, row.tae_i_a, row.tae_i_b, row.tae_i_c, row.tae_v_a, row.tae_v_b, row.tae_v_c, row.tae_pf, row.tae_ang_a, row.tae_ang_b, row.tae_ang_c, row.tae_kvarh_imp, row.tae_kvarh_exp, row.tae_kwh_imp, row.tae_kwh_exp, row.datetime_meter, row.customercode)
+                cursor.execute(sql_update, row.meterpointid, row.datetime_meter)
+        # cnxn.commit()
+        return "Done : " + str(meter) + "."
+    except Exception as e:
+        logging.critical(f"Error SQL SERVER : {e}")
+    
     # cursor.close()
 
 #query on by one
-for device in meterpointlist:
-    # device = [device]
-    # in_vars = ','.join(':%d' % i for i in range(len(device)))
-    # print(in_vars) 
-    if dictionary[device] and not pd.isnull(dictionary[device]):
-        print("IS it null ", pd.isnull(dictionary[device]))
-        print("Value from list is " + str(device))
-        print("Value from dictionary is " + str(dictionary[device]))
-        #Get last update + 15 min to check if it equal to current query time
-        lastest_ = datetime.strptime(dictionary[device],'%Y-%m-%d %H:%M')
-        log_msg = "Latest update of meterpointid "+ str(device) + " = " + lastest_.strftime('%Y-%m-%d %H:%M')
-        print(log_msg)
-        logging.info(log_msg)
-        lastest = lastest_ + timedelta(minutes=15)
-        print("Time for checking is " + lastest.strftime('%Y-%m-%d %H:%M'))
-        if querytime == lastest:
-            log_msg = "Time using for query of meterpointid " + str(device) + " is " + querytime.strftime('%Y-%m-%d %H:%M')
-            logging.info(log_msg)
-            print("log_msg")
-            dt_end = dt_start = querytime.strftime('%Y-%m-%d %H:%M')
-        else:
+# for device in meterpointlist:
+#     # device = [device]
+#     # in_vars = ','.join(':%d' % i for i in range(len(device)))
+#     # print(in_vars) 
+#     if dictionary[device] and not pd.isnull(dictionary[device]):
+#         print("IS it null ", pd.isnull(dictionary[device]))
+#         print("Value from list is " + str(device))
+#         print("Value from dictionary is " + str(dictionary[device]))
+#         #Get last update + 15 min to check if it equal to current query time
+#         lastest_ = datetime.strptime(dictionary[device],'%Y-%m-%d %H:%M')
+#         log_msg = "Latest update of meterpointid "+ str(device) + " = " + lastest_.strftime('%Y-%m-%d %H:%M')
+#         print(log_msg)
+#         logging.info(log_msg)
+#         lastest = lastest_ + timedelta(minutes=15)
+#         print("Time for checking is " + lastest.strftime('%Y-%m-%d %H:%M'))
+#         if querytime == lastest:
+#             log_msg = "Time using for query of meterpointid " + str(device) + " is " + querytime.strftime('%Y-%m-%d %H:%M')
+#             logging.info(log_msg)
+#             print("log_msg")
+#             dt_end = dt_start = querytime.strftime('%Y-%m-%d %H:%M')
+#         else:
 
-            log_msg = "Time using for query of meterpointid " + str(device) + " is " + lastest.strftime('%Y-%m-%d %H:%M') + " to " + querytime.strftime('%Y-%m-%d %H:%M')
-            logging.info(log_msg)
-            print("log_msg")
-            dt_start = lastest.strftime('%Y-%m-%d %H:%M')
-            dt_end = querytime.strftime("%Y-%m-%d %H:%M")
-    else:
-        print("No latest time is found, maybe a new meter?")
-        log_msg = "Using default start time for query of new meterpointid " + str(device) + " = as " + default_query_time.strftime("%Y-%m-%d %H:%M")
-        logging.info(log_msg)
-        print("log_msg")
-        dt_start = default_query_time.strftime("%Y-%m-%d %H:%M")
-        dt_end = querytime.strftime("%Y-%m-%d %H:%M")
-    getandsave(device, dt_end)
-cursor.close()
+#             log_msg = "Time using for query of meterpointid " + str(device) + " is " + lastest.strftime('%Y-%m-%d %H:%M') + " to " + querytime.strftime('%Y-%m-%d %H:%M')
+#             logging.info(log_msg)
+#             print("log_msg")
+#             dt_start = lastest.strftime('%Y-%m-%d %H:%M')
+#             dt_end = querytime.strftime("%Y-%m-%d %H:%M")
+#     else:
+#         print("No latest time is found, maybe a new meter?")
+#         log_msg = "Using default start time for query of new meterpointid " + str(device) + " = as " + default_query_time.strftime("%Y-%m-%d %H:%M")
+#         logging.info(log_msg)
+#         print("log_msg")
+#         dt_start = default_query_time.strftime("%Y-%m-%d %H:%M")
+#         dt_end = querytime.strftime("%Y-%m-%d %H:%M")
+#     getandsave(device, dt_end)
+    # entry point of the program
+# if __name__ == '__main__':
+#     # create a process pool with the default number of worker processes
+#     # executor = concurrent.futures.ProcessPoolExecutor()
+#     # create a process pool with 4 workers
+#     executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+#     futures = [executor.map(getandsave, item) for item in meterpointlist]
+#     concurrent.futures.wait(futures)
+# start the thread pool
+# threaded_start = time.time()
+start_time = datetime.now()
+print("Start thread!")
+logging.info("Start thread:" + start_time.strftime("%Y-%m-%d %H:%M:%S"))
+try:
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # submit tasks and collect futures
+        futures = [executor.submit(getandsave, item) for item in meterpointlist]
+        # Wait for all the queries to complete and retrieve the results
+        results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        # Process the results
+        for result in results:
+            # Do something with the fetched data
+            print(result)
+    # threaded_stop = time.time()
+    end_time = datetime.now()
+    execution_time = end_time - start_time
+
+    # Format the execution time
+    hours = execution_time.seconds // 3600
+    minutes = (execution_time.seconds // 60) % 60
+    seconds = execution_time.seconds % 60
+
+    formatted_time = f"{hours} hours, {minutes} minutes, {seconds} seconds"
+    # print("Threaded time:", time.time() - threaded_start)
+    print("Execution Time:", formatted_time)
+    logging.info("Execution Time:", formatted_time)
+    print("All done!")
+    cursor.close()
+except Exception as e:
+    print("ThreadPoolExecutor quit unexpectedly due to an exception:")
+    print(repr(e))
+
